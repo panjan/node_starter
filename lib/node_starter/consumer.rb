@@ -3,7 +3,7 @@ require 'bunny'
 module NodeStarter
   # class wrapping connection to queue that stores uss nodes to be started
   class Consumer
-    class QueueNotInitilized < StandardError
+    class QueueNotInitialized < StandardError
     end
 
     def setup
@@ -26,7 +26,7 @@ module NodeStarter
     end
 
     def subscribe
-      fail QueueNotInitilized unless @queue
+      fail QueueNotInitialized unless @queue
 
       NodeStarter.logger.debug("Waiting for messages in #{@queue.name}.")
       opts = {
