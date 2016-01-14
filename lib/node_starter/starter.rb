@@ -36,8 +36,27 @@ module NodeStarter
       )
       node.save!
 
-      NodeStarter.logger.info("Scheduling starter_worker id=#{node.id}")
-      NodeStarter::StarterWorker.perform_async(node.id)
+
+      NodeStarter.logge.debug( "starting node: #{node}")
+
+      dir = node.path
+      node_executable_path = File.join(dir, NodeStarter.config.node_binary_name)
+
+      command = "#{node_executable_path} --start -e #{dir}/enqueueData.bin -c #{dir}/config.xml"
+      pid = Process.spawn({}, command)
+
+      NodeStarter.logger.info("Node #{node.build_id} spawned in #{dir} with pid #{pid}")
+
+      node.status = :running
+      node.pid = pid
+      node.save!
+
+      Process.wait(pid)
+      clean_up
+    end
+
+    def clean_up
+      NodeStarter.logger.info("Cleaning up node #{node.build_id} spawned in #{dir}")
     end
   end
 end

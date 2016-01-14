@@ -11,6 +11,8 @@ gem 'sqlite3',          '~> 1.3.11'
 gem 'nokogiri',         '>= 1.6.7.rc'
 gem 'sidekiq',          '= 3.4.2'
 
+gem 'sys-proctable',    '= 0.9.9'
+
 group :test, :development do
   gem 'rspec'
   gem 'rubocop'
@@ -19,7 +21,7 @@ end
 
 group :test do
 # TODO: investigate whether this gem is really needed
-# it causes problem running travis-ci tests 
+# it causes problem running travis-ci tests
 # and when running on windows
 #  gem 'fakefs'
 end
@@ -27,4 +29,4 @@ end
 group :development do
   gem 'rails', '4.2.3', require: false
   gem 'factory_girl_rails', '~> 4.0'
-end 
+end
