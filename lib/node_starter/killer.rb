@@ -2,7 +2,7 @@ require 'sys/proctable'
 
 module NodeStarter
   # class killing running uss node process
-  class Aborter
+  class Killer
     attr_reader :build_id
 
     def initialize(build_id)
@@ -10,8 +10,7 @@ module NodeStarter
     end
 
     def abort_process
-      NodeStarter.logger.info( "Aborting node #{@build_id}")
-
+      NodeStarter.logger.info("Aborting node #{@build_id}")
       send_abort_via_REST
       sleep 50
       check
@@ -24,12 +23,12 @@ module NodeStarter
     end
 
     def check
-      NodeStarter.logger.debug( "Checking running node to be aborted build_id=#{@build_id}")
-      node = Node.find(build_id: @build_id)
+      NodeStarter.logger.debug("Checking running node to be aborted build_id=#{@build_id}")
+      node = Node.find_by build_id: @build_id
 
       if running?(node.pid)
 
-        NodeStarter.logger.debug( "Node #{@build_id} still alive after #{node.abort_attempts} atts")
+        NodeStarter.logger.debug("Node #{@build_id} still alive after #{node.abort_attempts} atts")
 
         node.abort_attempts = 1 + (node.abort_attempts || 0)
         node.save!
@@ -40,7 +39,7 @@ module NodeStarter
           node.status = 'finished'
           node.save!
 
-          NodeStarter.logger.info( "Force killing node #{@build_id}")
+          NodeStarter.logger.info("Force killing node #{@build_id}")
 
           Process.kill("INT", node.pid)
           return

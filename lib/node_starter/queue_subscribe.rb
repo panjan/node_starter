@@ -60,7 +60,7 @@ module NodeStarter
 
         build_id = parse_build_id(payload)
 
-        aborter = NodeStarter::Aborter.new(build_id)
+        aborter = NodeStarter::Killer.new(build_id)
 
         Thread.new do
           aborter.abort_process

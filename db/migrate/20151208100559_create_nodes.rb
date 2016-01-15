@@ -10,6 +10,7 @@ class CreateNodes < ActiveRecord::Migration
       t.integer :abort_attempts
       t.boolean :killed
       t.string :path
+      t.string :url
 
       t.timestamps null: false
     end

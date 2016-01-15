@@ -1,7 +1,7 @@
 require 'logger'
 require 'node_starter/config'
 require 'node_starter/database'
-
+require 'node_starter/killer'
 require 'sidekiq'
 
 # Namespace that handles git operations for NodeStarter

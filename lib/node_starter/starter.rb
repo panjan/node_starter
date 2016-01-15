@@ -32,7 +32,8 @@ module NodeStarter
       node = Node.create!(
         build_id: @config_values['id'],
         path: @dir,
-        status: :created
+        status: :created,
+        url: node_url
       )
       node.save!
 

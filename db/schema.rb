@@ -23,6 +23,7 @@ ActiveRecord::Schema.define(version: 20151208100559) do
     t.integer  "abort_attempts"
     t.boolean  "killed"
     t.string   "path"
+    t.string   "url"
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
   end
