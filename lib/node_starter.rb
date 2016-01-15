@@ -3,7 +3,6 @@ require 'node_starter/config'
 require 'node_starter/database'
 
 require 'sidekiq'
-require 'node_starter/workers/starter'
 
 # Namespace that handles git operations for NodeStarter
 module NodeStarter

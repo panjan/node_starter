@@ -20,7 +20,7 @@ module NodeStarter
       subscribe_cmd_queue
     end
 
-    def close_connection
+    def stop_listening
       @consumer.close_connection
       @cmd_consumer.close_connection
     end
