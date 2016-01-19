@@ -1,21 +1,23 @@
 describe NodeStarter::Killer do
   let(:node) { create :node, build_id: 123 }
   let(:subject) { NodeStarter::Killer.new node.build_id }
-
-  describe '#abort_process' do
+  let(:node_api) { NodeStarter::NodeApi.new 'foo' }
+  describe '#shutdown' do
     before do
       allow(subject). to receive(:sleep) { puts 'sleep' }
     end
 
-    context 'node responding' do
-      it 'stops node regularly' do
-        subject.abort_process
+    context 'node api responding' do
+      it 'stops node using api' do
+        expect(node_api).to receive :stop
+        subject.shutdown
+        fail NotImplementedError
       end
     end
 
-    context 'node not responding' do
+    context 'node api not responding' do
       it 'kills node process' do
-        
+        fail NotImplementedError
       end
     end
   end

@@ -38,7 +38,7 @@ module NodeStarter
       node.save!
 
 
-      NodeStarter.logge.debug( "starting node: #{node}")
+      NodeStarter.logger.debug("starting node: #{node}")
 
       dir = node.path
       node_executable_path = File.join(dir, NodeStarter.config.node_binary_name)
