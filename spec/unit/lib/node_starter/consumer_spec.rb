@@ -52,7 +52,7 @@ describe NodeStarter::Consumer do
     end
 
     it 'fails if queue is not initilized' do
-      expect { subject.read }.to raise_error { NodeStarter::Consumer::QueueNotInitilized }
+      expect { subject.read }.to raise_error { NodeStarter::Consumer::QueueNotInitialized }
     end
 
     it 'subscribes to queue' do
