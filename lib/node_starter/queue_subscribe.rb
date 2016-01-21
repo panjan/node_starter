@@ -17,7 +17,7 @@ module NodeStarter
       @shutdown_consumer.setup
 
       subscribe_stater_queue
-      subscribe_cmd_queue
+      subscribe_killer_queue
     end
 
     def stop_listening
@@ -49,14 +49,14 @@ module NodeStarter
           starter.schedule_spawn_process
         end
 
-        @shutdown_consumer.register_node(notification_build_id)
+        @shutdown_consumer.register_node(params['build_id'])
         @consumer.ack(delivery_info)
       end
     end
 
-    def subscribe_cmd_queue
+    def subscribe_killer_queue
       @shutdown_consumer.subscribe do |delivery_info, metadata, payload|
-        NodeStarter.logger.debug("Received CMD with #{payload}")
+        NodeStarter.logger.debug("Received kill command with #{payload}")
 
         build_id = parse_build_id payload
 
