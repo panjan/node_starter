@@ -11,53 +11,45 @@ module NodeStarter
     end
 
     def shutdown
-      NodeStarter.logger.info("Shutting down node #{@build_id}...")
-      sleep 50 if shutdown_using_api
-      try_kill_process
+      node = Node.find_by build_id: @build_id
+      sleep 50 if shutdown_using_api node.uri
+      kill_process node.pid if running? node.pid
+      force_kill_process node.pid if running? node.pid
+      node.finished_at = DateTime.now
+      node.status = 'finished'
+      node.save!
     end
 
     private
 
-    def try_kill_process
+    def kill_process(pid)
       NodeStarter.logger.debug("Checking running node to be aborted build_id=#{@build_id}")
-      node = Node.find_by build_id: @build_id
       5.times.with_index do |i|
-        if !running?(node.pid)
-          NodeStarter.logger.debug("Node #{@build_id} finished correctly")
-          node.killed = false
-          node.finished_at = DateTime.now
-          node.status = 'finished'
-          node.save!
+        if !running? pid
+          NodeStarter.logger.debug("Node #{@build_id} terminated.")
+          break
         end
         NodeStarter.logger.debug("Node #{@build_id} still alive after #{i + 1} attempts")
-        Process.kill('INT', node.pid)
+        Process.kill('INT', pid)
         sleep 10
       end
-
-      shutdown_process(node) if running? node.pid
     end
 
-    def shutdown_using_api
-      guid = '' # TODO
-      base_uri = URI("http://localhost:8732/#{guid}/api")
-      node_api = NodeApi.new base_uri
-      node_api.stop == Net::HTTPSuccess
+    def shutdown_using_api(node_uri)
+      return false if node_uri.empty?
+      NodeStarter.logger.info "Shutting down node using #{node_uri}."
+      # TODO: node_uri = URI("http://localhost:8732/#{guid}/api")
+      node_api = NodeApi.new node_uri
+      result = node_api.stop
+      NodeStarter.logger.info "Shutting down result: #{result}"
+      result == Net::HTTPSuccess
     rescue
       false
     end
 
-    def shutdown_process(node)
-      node.killed = true
-      node.finished_at = DateTime.now
-      node.status = 'finished'
-      node.save!
-
+    def force_kill_process(pid)
       NodeStarter.logger.info("Force killing node #{@build_id}")
-      Process.kill('KILL', node.pid)
-      sleep 10
-      if running?(node.pid)
-        NodeStarter.logger.warn("Node #{@build_id} was not killed.")
-      end
+      Process.kill('KILL', pid)
     end
 
     def running?(pid)

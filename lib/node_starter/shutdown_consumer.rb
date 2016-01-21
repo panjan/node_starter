@@ -1,8 +1,7 @@
 require 'bunny'
 
 module NodeStarter
-  class CmdConsumer
-
+  class ShutdownConsumer
     class QueueNotInitialized < StandardError
     end
 

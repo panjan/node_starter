@@ -1,5 +1,5 @@
 describe NodeStarter::Killer do
-  let!(:node) { create :node, build_id: 123, pid: 1 }
+  let!(:node) { create :node, build_id: 123, pid: 1, uri: 'foo' }
   let(:subject) { NodeStarter::Killer.new 123 }
   let!(:node_api) { double 'foo' }
 
@@ -19,7 +19,6 @@ describe NodeStarter::Killer do
         expect(NodeStarter::NodeApi).to receive(:new) { node_api }
         subject.shutdown
         node.reload
-        expect(node.killed).to be false
         expect(node.status).to eq 'finished'
       end
     end
@@ -33,7 +32,23 @@ describe NodeStarter::Killer do
         expect(Process).to receive(:kill).with('KILL', 1).exactly(1).times
         subject.shutdown
         node.reload
-        expect(node.killed).to be true
+        expect(node.status).to eq 'finished'
+      end
+    end
+
+    context 'node.uri not specified' do
+      before do
+        node.uri = nil
+        node.save!
+        node.reload
+      end
+
+      it 'kills node process' do
+        allow(Sys::ProcTable).to receive(:ps) { true }
+        expect(NodeStarter::NodeApi).to receive(:new).exactly(0).times
+        expect(Process).to receive(:kill).exactly(6).times
+        subject.shutdown
+        node.reload
         expect(node.status).to eq 'finished'
       end
     end

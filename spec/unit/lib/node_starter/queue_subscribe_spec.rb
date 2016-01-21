@@ -6,8 +6,8 @@ describe NodeStarter::QueueSubscribe do
            subscribe: {},
            close_connection: {})
   end
-  let(:cmd_consumer) do
-    double('cmd_consumer',
+  let(:shutdown_consumer) do
+    double('shutdown_consumer',
            setup: {},
            subscribe: {},
            close_connection: {})
@@ -15,7 +15,7 @@ describe NodeStarter::QueueSubscribe do
 
   before do
     allow(NodeStarter::Consumer).to receive(:new) { consumer }
-    allow(NodeStarter::CmdConsumer).to receive(:new) { cmd_consumer }
+    allow(NodeStarter::ShutdownConsumer).to receive(:new) { shutdown_consumer }
   end
 
   describe '#initialize' do
@@ -25,7 +25,7 @@ describe NodeStarter::QueueSubscribe do
     end
 
     it 'creates cmd consumer' do
-      expect(NodeStarter::CmdConsumer).to receive :new
+      expect(NodeStarter::ShutdownConsumer).to receive :new
       NodeStarter::QueueSubscribe.new
     end
   end
@@ -36,8 +36,8 @@ describe NodeStarter::QueueSubscribe do
       subject.start_listening
     end
 
-    it 'sets cmd_consumer up' do
-      expect(cmd_consumer).to receive :setup
+    it 'sets shutdown_consumer up' do
+      expect(shutdown_consumer).to receive :setup
       subject.start_listening
     end
 
@@ -47,7 +47,7 @@ describe NodeStarter::QueueSubscribe do
     end
 
     it 'subscribes to cmd queue' do
-      expect(cmd_consumer).to receive :subscribe
+      expect(shutdown_consumer).to receive :subscribe
       subject.start_listening
     end
   end
@@ -59,7 +59,7 @@ describe NodeStarter::QueueSubscribe do
     end
 
     it 'closes cmd consumer connection' do
-      expect(cmd_consumer).to receive :close_connection
+      expect(shutdown_consumer).to receive :close_connection
       subject.stop_listening
     end
   end
