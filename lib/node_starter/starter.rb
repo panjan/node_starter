@@ -42,7 +42,10 @@ module NodeStarter
       node_executable_path = File.join(dir, NodeStarter.config.node_binary_name)
 
       command = "#{node_executable_path} --start -e #{dir}/enqueueData.bin -c #{dir}/config.xml"
-      pid = Process.spawn({}, command)
+      r, w = IO.pipe
+      pid = Process.spawn(command, out: w)
+      r.close
+      w.close
 
       NodeStarter.logger.info("Node #{node.build_id} spawned in #{dir} with pid #{pid}")
 
