@@ -42,7 +42,7 @@ module NodeStarter
 
         params = parse(payload)
         starter = NodeStarter::Starter.new(
-          params['build_id'], params['config'], params['enqueue_data'], params['scenario_id'])
+          params['build_id'], params['config'], params['enqueue_data'], params['node_api_uri'])
 
         Thread.new do
           starter.start_node_process

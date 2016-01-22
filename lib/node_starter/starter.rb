@@ -7,8 +7,8 @@ module NodeStarter
   class Starter
     attr_reader :build_id, :dir, :pid
 
-    def initialize(build_id, config_values, enqueue_data, scenario_id)
-      @node_api_uri = URI.join NodeStarter.config.uss_node[:base_address], "/#{build_id}", '/api'
+    def initialize(build_id, config_values, enqueue_data, node_api_uri)
+      @node_api_uri = node_api_uri
       @build_id = build_id
       @config_values = config_values
       @enqueue_data = enqueue_data
