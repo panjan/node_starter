@@ -46,7 +46,7 @@ module NodeStarter
         Thread.new do
           begin
             starter.start_node_process
-          rescue e
+          rescue => e
             NodeStarter.logger.error e
           end
         end
