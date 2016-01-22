@@ -39,7 +39,7 @@ module NodeStarter
     def subscribe_stater_queue
       @consumer.subscribe do |delivery_info, metadata, payload|
         params = parse(payload)
-        NodeStarter.logger.debug("Received START with build_id: #{params[:build_id]}")
+        NodeStarter.logger.debug("Received START with build_id: #{params['build_id']}")
         starter = NodeStarter::Starter.new(
           params['build_id'], params['config'], params['enqueue_data'], params['node_api_uri'])
 
@@ -48,6 +48,8 @@ module NodeStarter
             starter.start_node_process
           rescue => e
             NodeStarter.logger.error e
+          ensure
+            @shutdown_consumer.unregister_node(params['build_id'])
           end
         end
 
