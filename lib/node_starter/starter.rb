@@ -7,19 +7,17 @@ module NodeStarter
   class Starter
     attr_reader :build_id, :dir, :pid
 
-    def initialize(build_id, config_values, enqueue_data)
+    def initialize(build_id, config_values, enqueue_data, scenario_id)
+      @node_api_uri = URI.join NodeStarter.config.uss_node[:base_address], "/#{build_id}", '/api'
       @build_id = build_id
-      config_values[:id] = build_id
-
-      config_values[:base_address] ||= NodeStarter.config.uss_node[:base_address] + build_id
-      @config_values = NodeStarter.config.uss_node.merge(config_values)
+      @config_values = config_values
       @enqueue_data = enqueue_data
     end
 
-    def schedule_spawn_process
-      @dir = Dir.mktmpdir("uss_node_#{build_id}_")
+    def start_node_process
+      @dir = Dir.mktmpdir("uss_node_#{@build_id}_")
 
-      NodeStarter::NodeConfigStore.new(@config_values).write_to(dir)
+      NodeStarter::NodeConfigStore.write_complete_file(dir, @config_values)
       NodeStarter::EnqueueDataStore.write_to(dir, @enqueue_data)
       NodeStarter::PrepareBinaries.write_to(dir)
 
@@ -30,13 +28,12 @@ module NodeStarter
 
     def start
       node = Node.create!(
-        build_id: @config_values['id'],
+        build_id: @build_id,
         path: @dir,
         status: :created,
-        url: node_url
+        uri: @node_api_uri
       )
       node.save!
-
 
       NodeStarter.logger.debug("starting node: #{node}")
 
@@ -57,7 +54,7 @@ module NodeStarter
     end
 
     def clean_up
-      NodeStarter.logger.info("Cleaning up node #{node.build_id} spawned in #{dir}")
+      NodeStarter.logger.info("Cleaning up node #{@build_id} spawned in #{@dir}")
     end
   end
 end

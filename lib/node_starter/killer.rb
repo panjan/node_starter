@@ -38,7 +38,6 @@ module NodeStarter
     def shutdown_using_api(node_uri)
       return false if node_uri.empty?
       NodeStarter.logger.info "Shutting down node using #{node_uri}."
-      # TODO: node_uri = URI("http://localhost:8732/#{guid}/api")
       node_api = NodeApi.new node_uri
       result = node_api.stop
       NodeStarter.logger.info "Shutting down result: #{result}"

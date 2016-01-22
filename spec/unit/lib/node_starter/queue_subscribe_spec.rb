@@ -24,7 +24,7 @@ describe NodeStarter::QueueSubscribe do
       NodeStarter::QueueSubscribe.new
     end
 
-    it 'creates cmd consumer' do
+    it 'creates shutdown consumer' do
       expect(NodeStarter::ShutdownConsumer).to receive :new
       NodeStarter::QueueSubscribe.new
     end
@@ -46,9 +46,9 @@ describe NodeStarter::QueueSubscribe do
       subject.start_listening
     end
 
-    it 'subscribes to cmd queue' do
-      expect(shutdown_consumer).to receive :subscribe
+    it 'subscribes to shutdown queue' do
       subject.start_listening
+      expect(shutdown_consumer).to receive :subscribe
     end
   end
 

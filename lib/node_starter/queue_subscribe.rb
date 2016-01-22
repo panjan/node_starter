@@ -41,12 +41,11 @@ module NodeStarter
         NodeStarter.logger.debug("Received START with #{payload}")
 
         params = parse(payload)
-
         starter = NodeStarter::Starter.new(
-          params['build_id'], params['config'], params['enqueue_data'])
+          params['build_id'], params['config'], params['enqueue_data'], params['scenario_id'])
 
         Thread.new do
-          starter.schedule_spawn_process
+          starter.start_node_process
         end
 
         @shutdown_consumer.register_node(params['build_id'])
