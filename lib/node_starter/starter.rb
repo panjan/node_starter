@@ -16,6 +16,7 @@ module NodeStarter
 
     def start_node_process
       @dir = Dir.mktmpdir("uss_node_#{@build_id}_")
+      puts "Node temporary directory: #{@dir}"
 
       NodeStarter::NodeConfigStore.write_complete_file(dir, @config_values)
       NodeStarter::EnqueueDataStore.write_to(dir, @enqueue_data)
