@@ -12,7 +12,7 @@ module NodeStarter
 
     def shutdown
       node = Node.find_by build_id: @build_id
-      sleep 50 if shutdown_using_api node.uri
+      sleep 50 if shutdown_using_api node.uri # PSCH - why 50?
       kill_process node.pid if running? node.pid
       force_kill_process node.pid if running? node.pid
       node.finished_at = DateTime.now
@@ -24,7 +24,7 @@ module NodeStarter
 
     def kill_process(pid)
       NodeStarter.logger.debug("Checking running node to be aborted build_id=#{@build_id}")
-      5.times.with_index do |i|
+      5.times.with_index do |i| # PSCH - why no wait between tries
         if !running? pid
           NodeStarter.logger.debug("Node #{@build_id} terminated.")
           break

@@ -12,9 +12,6 @@ describe NodeStarter::Starter do
       allow(NodeStarter::EnqueueDataStore).to receive(:write_to)
     end
 
-    after do
-      FileUtils.rm_rf(subject.dir)
-    end
     it 'prepares binaries' do
       expect(NodeStarter::PrepareBinaries).to receive(:write_to)
       allow(subject).to receive(:start).and_return(0)
@@ -40,6 +37,17 @@ describe NodeStarter::Starter do
       expect(Process).to receive(:spawn) { 123 }
       expect(Process).to receive(:wait)
       allow(Node).to receive(:create!) { fake_node }
+      subject.start_node_process
+    end
+    it 'copies log file to ???' do
+      fail NotImplementedError
+    end
+    it 'deletes working folder after test' do
+      allow(Process).to receive(:spawn) { 123 }
+      allow(Process).to receive(:wait)
+      expected_dir = 'foo/bar'
+      expect(Dir).to receive(:mktmpdir) { expected_dir }
+      expect(FileUtils).to receive(:rm_rf).with expected_dir
       subject.start_node_process
     end
     it 'updates pid in db' do

@@ -42,11 +42,10 @@ module NodeStarter
       node_executable_path = File.join(dir, NodeStarter.config.node_binary_name)
 
       command = "#{node_executable_path} --start -e #{dir}/enqueueData.bin -c #{dir}/config.xml"
-      r, w = IO.pipe
-      pid = Process.spawn(command, out: w)
-      r.close
-      w.close
-
+      pid = nil
+      IO.pipe do |_, w|
+        pid = Process.spawn(command, out: w)
+      end
       NodeStarter.logger.info("Node #{node.build_id} spawned in #{dir} with pid #{pid}")
 
       node.status = :running
@@ -59,6 +58,7 @@ module NodeStarter
 
     def clean_up
       NodeStarter.logger.info("Cleaning up node #{@build_id} spawned in #{@dir}")
+      FileUtils.rm_rf @dir
     end
   end
 end
