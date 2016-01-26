@@ -15,7 +15,7 @@ module NodeStarter
     end
 
     def start_node_process
-      @dir = Dir.mktmpdir("uss_node_#{@build_id}_")
+      @dir = Dir.mktmpdir("uss_node_#{@build_id}")
       NodeStarter.logger.info "Node temporary directory: #{@dir}"
 
       NodeStarter::NodeConfigStore.write_complete_file(dir, @config_values)
@@ -58,7 +58,19 @@ module NodeStarter
 
     def clean_up
       NodeStarter.logger.info("Cleaning up node #{@build_id} spawned in #{@dir}")
+      backup_logs
       FileUtils.rm_rf @dir
+    end
+
+    def backup_logs
+      logs_path = File.join @dir, 'debug.log'
+      target_file_name = "#{@build_id}.log"
+      target_path = File.join NodeStarter.config.uss_node.logs_storage_path, target_file_name
+      if File.exist? logs_path
+        FileUtils.cp logs_path, target_path
+      else
+        NodeStarter.logger.warn "Node #{@build_id} created no log file."
+      end
     end
   end
 end

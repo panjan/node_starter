@@ -69,7 +69,7 @@ module NodeStarter
         Thread.new do
           killer.shutdown
         end
-        
+
         @shutdown_consumer.ack delivery_info
       end
     end
