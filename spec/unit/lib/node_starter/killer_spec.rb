@@ -27,7 +27,7 @@ describe NodeStarter::Killer do
     context 'node api not responding' do
       it 'kills node process' do
         allow(Sys::ProcTable).to receive(:ps) { true }
-        expect(node_api).to receive(:stop) { Net::HTTPSuccess }
+        expect(node_api).to receive(:stop)
         expect(NodeStarter::NodeApi).to receive(:new) { node_api }
         expect(Process).to receive(:kill).with('INT', 1).exactly(5).times
         expect(Process).to receive(:kill).with('KILL', 1).exactly(1).times

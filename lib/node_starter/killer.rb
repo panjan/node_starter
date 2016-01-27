@@ -1,5 +1,6 @@
 require 'sys/proctable'
 require 'node_starter/node_api'
+require 'timeout'
 
 module NodeStarter
   # class killing running node process
@@ -15,12 +16,33 @@ module NodeStarter
       node.status = :aborting
       node.save!
 
-      sleep 120 if shutdown_using_api node.uri # TODO: retry logic with increasing interval
-      kill_process node.pid if running? node.pid
-      force_kill_process node.pid if running? node.pid
+      unless shutdown_using_api node.uri, node.pid
+        kill_process node.pid if running? node.pid
+        force_kill_process node.pid if running? node.pid
+      end
     end
 
     private
+
+    def shutdown_using_api(uri, pid)
+      return false if uri.empty?
+      NodeStarter.logger.info "Shutting down node using URI #{uri}."
+      node_api = NodeApi.new uri
+      result = node_api.stop
+      fail "Node refused stop request with status #{result}." unless result == Net::HTTPSuccess
+      NodeStarter.logger.info "Waiting for node with PID #{pid} to finish."
+      Timeout.timeout(NodeStarter.config.shutdown_node_timeout_in_minutes) do
+        Process.wait pid
+      end
+      NodeStarter.logger.info "Node with PID #{pid} finished."
+      true
+    rescue TimeoutError => e
+      NodeStarter.logger.warn "Node shutdown request timed out. Address: #{uri}"
+      false
+    rescue => e
+      NodeStarter.logger.error e
+      false
+    end
 
     def kill_process(pid)
       NodeStarter.logger.debug("Checking running node to be aborted build_id=#{@build_id}")
@@ -33,17 +55,6 @@ module NodeStarter
         Process.kill('INT', pid)
         sleep 300
       end
-    end
-
-    def shutdown_using_api(node_uri)
-      return false if node_uri.empty?
-      NodeStarter.logger.info "Shutting down node using #{node_uri}."
-      node_api = NodeApi.new node_uri
-      result = node_api.stop
-      NodeStarter.logger.info "Shutting down result: #{result}"
-      result == Net::HTTPSuccess
-    rescue
-      false
     end
 
     def force_kill_process(pid)
