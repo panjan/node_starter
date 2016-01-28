@@ -25,7 +25,7 @@ module NodeStarter
     private
 
     def shutdown_using_api(uri, pid)
-      return false if uri.empty?
+      return false if uri.nil? || uri.empty?
       NodeStarter.logger.info "Shutting down node using URI #{uri}."
       node_api = NodeApi.new uri
       result = node_api.stop
@@ -36,7 +36,7 @@ module NodeStarter
       end
       NodeStarter.logger.info "Node with PID #{pid} finished."
       true
-    rescue TimeoutError => e
+    rescue TimeoutError
       NodeStarter.logger.warn "Node shutdown request timed out. Address: #{uri}"
       false
     rescue => e
@@ -45,7 +45,7 @@ module NodeStarter
     end
 
     def kill_process(pid)
-      NodeStarter.logger.debug("Checking running node to be aborted build_id=#{@build_id}")
+      NodeStarter.logger.debug("Killing process #{pid} of node with build_id #{@build_id}")
       5.times.with_index do |i|
         unless running? pid
           NodeStarter.logger.debug("Node #{@build_id} terminated.")
