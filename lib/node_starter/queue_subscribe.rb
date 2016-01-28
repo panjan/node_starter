@@ -40,19 +40,16 @@ module NodeStarter
         starter = NodeStarter::Starter.new(
           params['build_id'], params['config'], params['enqueue_data'], params['node_api_uri'])
 
-        # TODO: run node synchronously and ack afterwards in order to
-        # limit number of running tests by prefetch limit
-        Thread.new do
-          begin
-            starter.start_node_process
-          rescue => e
-            NodeStarter.logger.error e
-          ensure
-            @shutdown_consumer.unregister_node(params['build_id'])
-          end
+        @shutdown_consumer.register_node(params['build_id'])
+
+        begin
+          starter.start_node_process
+        rescue => e
+          NodeStarter.logger.error e
+        ensure
+          @shutdown_consumer.unregister_node(params['build_id'])
         end
 
-        @shutdown_consumer.register_node(params['build_id'])
         @consumer.ack(delivery_info)
       end
     end
