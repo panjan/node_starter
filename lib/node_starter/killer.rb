@@ -12,14 +12,12 @@ module NodeStarter
     end
 
     def shutdown
-      node = Node.find_by build_id: @build_id
-      node.status = :aborting
-      node.save!
+      node = Node.find_by! build_id: @build_id
+      node.update_column :status, :aborting
 
-      unless shutdown_using_api node.uri, node.pid
-        kill_process node.pid if running? node.pid
-        force_kill_process node.pid if running? node.pid
-      end
+      return if shutdown_using_api node.uri, node.pid
+      kill_process node.pid if running? node.pid
+      force_kill_process node.pid if running? node.pid
     end
 
     private

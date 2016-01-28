@@ -11,15 +11,13 @@ describe NodeStarter::Killer do
       allow(node_api).to receive(:stop)
       allow(Node).to receive(:find_by) { node }
       allow(Process).to receive(:kill)
-      allow(node).to receive(:save!)
+      allow(node).to receive(:update_column)
       allow(Process).to receive(:wait)
     end
 
     shared_examples 'a killer' do
       it 'updates node record status to aborting' do
-        expect(node).to receive :save! do
-          expect(node.status).to eq 'aborting'
-        end
+        expect(node).to receive(:update_column).with :status, :aborting
         subject.shutdown
       end
     end
