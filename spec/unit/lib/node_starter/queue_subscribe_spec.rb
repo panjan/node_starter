@@ -63,4 +63,98 @@ describe NodeStarter::QueueSubscribe do
       subject.stop_listening
     end
   end
+
+  describe 'close_connection' do
+    it 'raises error without setup' do
+      expect { subject.close_connection }.to raise_error { NoMethodError }
+    end
+
+  end
+
+  describe '#run' do
+    let(:payload) { { build_id: 123 } }
+    let(:starter) { double('starter') }
+
+    before do
+      allow(consumer).to receive :ack
+      allow(shutdown_consumer).to receive :unregister_node
+      allow(shutdown_consumer).to receive :register_node
+      allow(NodeStarter::Starter).to receive(:new) { starter }
+      allow(starter).to receive :start_node_process
+    end
+
+    shared_examples_for 'a runner' do |exception_expected|
+      def run(ignore_exception)
+        subject.send :run, {}, payload.to_json
+      rescue
+        raise unless ignore_exception
+      end
+
+      it 'registers node to shutdown queue' do
+        expect(shutdown_consumer).to receive(:register_node).with(payload[:build_id])
+        run exception_expected
+      end
+
+      it 'unregisters node from shutdown queue' do
+        expect(shutdown_consumer).to receive(:unregister_node).with(payload[:build_id])
+        run exception_expected
+      end
+
+      it 'runs node' do
+        expect(starter).to receive :start_node_process
+        run exception_expected
+      end
+    end
+
+    context 'when node starter throws' do
+      it_behaves_like 'a runner', true
+
+      before do
+        starter.stub(:start_node_process) { fail }
+      end
+
+      it 'does not acknowledge the message' do
+        expect(consumer).to receive(:ack).exactly(0).times
+        expect { subject.send :run, {}, '{}' }.to raise_error
+      end
+    end
+
+    context 'when node starter does not throw' do
+      it_behaves_like 'a runner'
+
+      it 'acknowledges the message' do
+        expected_delivery_info = 'pizza is here'
+        expect(consumer).to receive(:ack).with(expected_delivery_info)
+        subject.send :run, expected_delivery_info, '{}'
+      end
+    end
+  end
+
+  describe '#stop' do
+    let(:killer) { double('killer') }
+
+    before do
+      allow(killer).to receive :shutdown
+      allow(NodeStarter::Killer).to receive(:new) { killer }
+    end
+
+    context 'when node killer throws' do
+      before do
+        killer.stub(:shutdown) { fail }
+      end
+
+      it 'does not acknowledge the message' do
+        expect(shutdown_consumer).to receive(:ack).exactly(0).times
+        expect { subject.send :stop, {}, {} }.to raise_error
+      end
+    end
+
+    context 'when node killer does not throw' do
+      it 'acknowledges the message' do
+        expected_delivery_info = { routing_key: 'cmd.123' }
+        expect(shutdown_consumer).to receive(:ack).with(expected_delivery_info)
+        subject.send :stop, expected_delivery_info
+      end
+    end
+  end
 end

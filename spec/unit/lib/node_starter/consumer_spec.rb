@@ -61,10 +61,4 @@ describe NodeStarter::Consumer do
       subject.subscribe
     end
   end
-
-  describe '#close_connection' do
-    it 'raises error without setup' do
-      expect { subject.close_connection }.to raise_error { NoMethodError }
-    end
-  end
 end

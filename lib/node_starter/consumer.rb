@@ -11,7 +11,6 @@ module NodeStarter
         hostname: NodeStarter.config.bunny_host,
         username: NodeStarter.config.bunny_user,
         password: NodeStarter.config.bunny_password
-
       )
       @conn.start
 

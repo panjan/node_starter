@@ -33,38 +33,47 @@ module NodeStarter
 
     def subscribe_stater_queue
       @consumer.subscribe do |delivery_info, _metadata, payload|
-        params = parse(payload)
-        NodeStarter.logger.debug("Received START with build_id: #{params['build_id']}")
-        # config and enqueue_data as raw xml
-        # TODO: make a better payload model
-        starter = NodeStarter::Starter.new(
-          params['build_id'], params['config'], params['enqueue_data'], params['node_api_uri'])
-
-        @shutdown_consumer.register_node(params['build_id'])
-
-        begin
-          starter.start_node_process
-        rescue => e
-          NodeStarter.logger.error e
-        ensure
-          @shutdown_consumer.unregister_node(params['build_id'])
-        end
-
-        @consumer.ack(delivery_info)
+        run delivery_info, payload
       end
     end
 
     def subscribe_killer_queue
       @shutdown_consumer.subscribe do |delivery_info, _metadata, payload|
-        NodeStarter.logger.debug("Received kill command with #{payload}")
-
-        build_id = delivery_info[:routing_key].to_s.slice('cmd.')
-
-        killer = NodeStarter::Killer.new build_id
-        killer.shutdown
-
-        @shutdown_consumer.ack delivery_info
+        stop delivery_info, payload
       end
+    end
+
+    def run(delivery_info, payload)
+      params = parse(payload)
+      NodeStarter.logger.debug("Received START with build_id: #{params['build_id']}")
+      # config and enqueue_data as raw xml
+      # TODO: make a better payload model
+      starter = NodeStarter::Starter.new(
+        params['build_id'], params['config'], params['enqueue_data'], params['node_api_uri'])
+
+      @shutdown_consumer.register_node(params['build_id'])
+
+      begin
+        starter.start_node_process
+      rescue => e
+        NodeStarter.logger.error e
+        raise e
+      ensure
+        @shutdown_consumer.unregister_node(params['build_id'])
+      end
+
+      @consumer.ack(delivery_info)
+    end
+
+    def stop(delivery_info)
+      NodeStarter.logger.debug("Received kill command: #{delivery_info[:routing_key]}")
+
+      build_id = delivery_info[:routing_key].to_s.slice('cmd.')
+
+      killer = NodeStarter::Killer.new build_id
+      killer.shutdown
+
+      @shutdown_consumer.ack delivery_info
     end
   end
 end
