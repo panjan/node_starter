@@ -1,3 +1,6 @@
+class TestError < StandardError
+end
+
 describe NodeStarter::QueueSubscribe do
   let(:subject) { NodeStarter::QueueSubscribe.new }
   let(:consumer) do
@@ -68,7 +71,6 @@ describe NodeStarter::QueueSubscribe do
     it 'raises error without setup' do
       expect { subject.close_connection }.to raise_error { NoMethodError }
     end
-
   end
 
   describe '#run' do
@@ -83,34 +85,40 @@ describe NodeStarter::QueueSubscribe do
       allow(starter).to receive :start_node_process
     end
 
-    shared_examples_for 'a runner' do |exception_expected|
-      def run(ignore_exception)
+    shared_examples_for 'a runner' do |expected_exception|
+      def send_run
         subject.send :run, {}, payload.to_json
-      rescue
-        raise unless ignore_exception
+      end
+
+      def run(exception)
+        if exception
+          expect { send_run }.to raise_error exception
+        else
+          send_run
+        end
       end
 
       it 'registers node to shutdown queue' do
         expect(shutdown_consumer).to receive(:register_node).with(payload[:build_id])
-        run exception_expected
+        run expected_exception
       end
 
       it 'unregisters node from shutdown queue' do
         expect(shutdown_consumer).to receive(:unregister_node).with(payload[:build_id])
-        run exception_expected
+        run expected_exception
       end
 
       it 'runs node' do
         expect(starter).to receive :start_node_process
-        run exception_expected
+        run expected_exception
       end
     end
 
     context 'when node starter throws' do
-      it_behaves_like 'a runner', true
+      it_behaves_like 'a runner', TestError
 
       before do
-        starter.stub(:start_node_process) { fail }
+        starter.stub(:start_node_process) { fail TestError }
       end
 
       it 'does not acknowledge the message' do
@@ -158,3 +166,4 @@ describe NodeStarter::QueueSubscribe do
     end
   end
 end
+
