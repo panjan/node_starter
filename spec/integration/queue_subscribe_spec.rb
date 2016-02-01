@@ -32,6 +32,7 @@ describe 'NodeStarter::Subscribe integration' do
     expect(NodeStarter::Consumer).to receive(:new) { fake_consumer }
     expect(NodeStarter::ShutdownConsumer).to receive(:new) { fake_shutdown_consumer }
     allow(NodeStarter::PrepareBinaries).to receive(:write_to)
+    expect(fake_shutdown_consumer).to receive(:unregister_node)
 
     expect_any_instance_of(NodeStarter::Starter)
       .to receive(:start).with(any_args).and_return(111)
