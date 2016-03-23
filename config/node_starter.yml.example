@@ -1,3 +1,9 @@
+rabbit_reporting_build: &rabbit_reporting_build
+  routing_key:                      reporting.builds.builds
+  receive_message_type:             build:receive
+  start_message_type:               build:start        
+  error_message_type:               build:error
+
 default: &defaults
   node_binaries_path:               /tmp/node_bin
   node_binary_name:                 AVG.Ddtf.UssNode.exe
@@ -49,15 +55,15 @@ default: &defaults
     rabbit_logs_password:         password
     rabbit_logs_address:          localhost
     rabbit_logs_port:             5672
-    rabbit_logs_virtual_host:     host
-    rabbit_finalci_username:      username
-    rabbit_finalci_password:      password
-    rabbit_finalci_address:       localhost
-    rabbit_finalci_port:          5672
-    rabbit_finalci_virtual_host:  host
-    rabbit_finalci_exchange:      reporting
-    rabbit_finalci_routing_key:   reporting.builds.builds
-    rabbit_finalci_error_type:    build:error
+    rabbit_logs_virtual_host:       host
+    rabbit_reporting_username:      username
+    rabbit_reporting_password:      password
+    rabbit_reporting_address:       localhost
+    rabbit_reporting_port:          5672
+    rabbit_reporting_virtual_host:  host
+    rabbit_reporting_exchange:      reporting
+    rabbit_reporting_build:       *rabbit_reporting_build
+
   amqp:
     host:                           localhost
     port:                           15672

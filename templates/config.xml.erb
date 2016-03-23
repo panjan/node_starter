@@ -8,14 +8,14 @@
     <VirtualHost><%= @rabbit_logs_virtual_host %></VirtualHost>
   </RabbitMQLogsFeeder>
   <FinalCIReporter>
-    <Username><%= @rabbit_finalci_username %></Username>
-    <Password><%= @rabbit_finalci_password %></Password>
-    <IPAddress><%= @rabbit_finalci_address %></IPAddress>
-    <Port><%= @rabbit_finalci_port %></Port>
-    <VirtualHost><%= @rabbit_finalci_virtual_host %></VirtualHost>
-    <Exchange><%= @rabbit_finalci_exchange %></Exchange>
-    <RoutingKey><%= @rabbit_finalci_routing_key %></RoutingKey>
-    <ErrorMessageType><%= @rabbit_finalci_error_type %></ErrorMessageType>
+    <Username><%= @rabbit_reporting_username %></Username>
+    <Password><%= @rabbit_reporting_password %></Password>
+    <IPAddress><%= @rabbit_reporting_address %></IPAddress>
+    <Port><%= @rabbit_reporting_port %></Port>
+    <VirtualHost><%= @rabbit_reporting_virtual_host %></VirtualHost>
+    <Exchange><%= @rabbit_reporting_build['exchange'] %></Exchange>
+    <RoutingKey><%= @rabbit_reporting_build['routing_key'] %></RoutingKey>
+    <ErrorMessageType><%= @rabbit_reporting_build['error_message_type'] %></ErrorMessageType>
   </FinalCIReporter>
   <Proton>
     <ProtonUrlSuffix><%= @proton_url_suffix %></ProtonUrlSuffix>

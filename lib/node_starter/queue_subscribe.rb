@@ -60,7 +60,9 @@ module NodeStarter
         params['build_id'], params['config'], params['enqueue_data'], params['node_api_uri'])
 
       begin
+        # TODO: report received
         starter.start_node_process
+        # TODO: report started
         @consumer.ack(delivery_info)
         @shutdown_consumer.register_node(params['build_id'])
       rescue => e
