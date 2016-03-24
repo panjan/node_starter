@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
   <RabbitMQLogsFeeder>
-    <Username><%= @rabbit_logs_username %></Username>
-    <Password><%= @rabbit_logs_password %></Password>
-    <IPAddress><%= @rabbit_logs_address %></IPAddress>
-    <Port><%= @rabbit_logs_port %></Port>
-    <VirtualHost><%= @rabbit_logs_virtual_host %></VirtualHost>
+    <Username><%= @rabbit_logs['username'] %></Username>
+    <Password><%= @rabbit_logs['password'] %></Password>
+    <IPAddress><%= @rabbit_logs['address'] %></IPAddress>
+    <Port><%= @rabbit_logs['port'] %></Port>
+    <VirtualHost><%= @rabbit_logs['vhost'] %></VirtualHost>
   </RabbitMQLogsFeeder>
   <FinalCIReporter>
-    <Username><%= @rabbit_reporting_username %></Username>
-    <Password><%= @rabbit_reporting_password %></Password>
-    <IPAddress><%= @rabbit_reporting_address %></IPAddress>
-    <Port><%= @rabbit_reporting_port %></Port>
-    <VirtualHost><%= @rabbit_reporting_virtual_host %></VirtualHost>
-    <Exchange><%= @rabbit_reporting_build['exchange'] %></Exchange>
-    <RoutingKey><%= @rabbit_reporting_build['routing_key'] %></RoutingKey>
-    <ErrorMessageType><%= @rabbit_reporting_build['error_message_type'] %></ErrorMessageType>
+    <Username><%= @rabbit_reporting['username'] %></Username>
+    <Password><%= @rabbit_reporting['password'] %></Password>
+    <IPAddress><%= @rabbit_reporting['host'] %></IPAddress>
+    <Port><%= @rabbit_reporting['port'] %></Port>
+    <VirtualHost><%= @rabbit_reporting['vhost'] %></VirtualHost>
+    <Exchange><%= @rabbit_reporting['build_reporting_exchange'] %></Exchange>
+    <RoutingKey><%= @rabbit_reporting['build_reporting_routing_key'] %></RoutingKey>
+    <ErrorMessageType><%= @rabbit_reporting['build_error_message_type'] %></ErrorMessageType>
   </FinalCIReporter>
   <Proton>
     <ProtonUrlSuffix><%= @proton_url_suffix %></ProtonUrlSuffix>
