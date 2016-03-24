@@ -19,15 +19,15 @@ module NodeStarter
         auto_delete: false
       }
 
-      @exchange = @channel.topic(NodeStarter.config.rabbit_reporting_exchange, exchange_params)
+      @exchange = @channel.topic(NodeStarter.config.amqp.build_reporting_exchange, exchange_params)
     end
 
     def receive
-      @exchange.publish(NodeStarter.config.rabbit_reporting_build.receive_message_type)
+      @exchange.publish(NodeStarter.config.amqp.build_receive_message_type || 'build:receive')
     end
 
     def start
-      @exchange.publish(NodeStarter.config.rabbit_reporting_build.start_message_type)
+      @exchange.publish(NodeStarter.config.amqp.build_start_message_type || 'build:start')
     end
   end
 end

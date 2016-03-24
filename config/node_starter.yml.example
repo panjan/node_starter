@@ -1,3 +1,18 @@
+amqp: &amqp
+  host:                           localhost
+  port:                           15672
+  username:                       guest
+  password:                       guest
+  vhost:                          /
+  start_uss_node_queue_name:      builds.windows.ussnode
+  stop_uss_node_queue_name:       commands.windows.ussnode
+  uss_node_queue_prefetch:        5
+  build_reporting_exchange:       reporting
+  build_reporting_routing_key:    reporting.builds.builds
+  build_receive_message_type:     build:receive
+  build_start_message_type:       build:start
+  build_error_message_type:       build:error
+
 default: &defaults
   node_binaries_path:               /tmp/node_bin
   node_binary_name:                 AVG.Ddtf.UssNode.exe
@@ -6,6 +21,7 @@ default: &defaults
   shutdown_node_wait_in_minutes:    60
   shutdown_node_check_count:        5
   shutdown_node_period_in_minutes:  10
+  amqp: *amqp
   uss_node:
     enqueued_by:                    someone
     proton_url_suffix:              Proton/
@@ -45,25 +61,10 @@ default: &defaults
     rabbit_logs:
       username:                     username
       password:                     password
-      address:                      localhost
+      host:                         localhost
       port:                         5672
       vhost:                        host
     rabbit_reporting:               *amqp
-
-  amqp: &amqp
-    host:                           localhost
-    port:                           15672
-    username:                       guest
-    password:                       guest
-    vhost:                          /
-    start_uss_node_queue_name:      builds.windows.ussnode
-    stop_uss_node_queue_name:       commands.windows.ussnode
-    uss_node_queue_prefetch:        5
-    build_reporting_exchange:       reporting
-    build_reporting_routing_key:    reporting.builds.builds
-    build_receive_message_type:     build:receive
-    build_start_message_type:       build:start        
-    build_error_message_type:       build:error
 
 production:
   <<: *defaults
