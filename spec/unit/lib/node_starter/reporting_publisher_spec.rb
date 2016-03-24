@@ -2,39 +2,30 @@ describe NodeStarter::ReportingPublisher do
   let(:subject) { NodeStarter::ReportingPublisher.new }
   let(:connection) { double(:connection) }
   let(:channel) { double(:channel) }
-  let(:dummy_host) { 'foo' }
-  let(:dummy_port) { 156_72 }
-  let(:dummy_username) { 'guest' }
-  let(:dummy_pass) { 'guest' }
-  let(:dummy_vhost) { '/' }
-  let(:dummy_queue) { 'test-queue' }
-  let(:config) { double(:config, rabbit_reporting_exchange) }
-
+  let(:config) do
+    double('config', rabbit_reporting: double('rabbit',
+                                              host:     'foo',
+                                              port:     123_456,
+                                              username: 'neo',
+                                              password: 'bar',
+                                              vhost:    'baz',
+                                              build_reporting_exchange: 'qux'))
+  end
   before do
     allow(connection).to receive(:start)
     allow(connection).to receive(:create_channel)
-    allow(NodeStarter).to receive_message_chain(:config, :amqp).and_return(
-                            double(
-                              'amqp_config',
-                              host:     dummy_host,
-                              port:     dummy_port,
-                              username: dummy_username,
-                              password: dummy_pass,
-                              vhost:    dummy_vhost))
-    allow(NodeStarter).to receive_message_chain(:config, :rabbit_reporting).and_return(
-                            'foo:bar'
-                          )
+    allow(channel).to receive(:topic) { double('topic', :publish) }
+    allow(NodeStarter).to receive(:config).and_return(config)
   end
 
   describe '#setup' do
     it 'starts connection to rabbit' do
-      expect(Bunny).to receive(:new).with(
-                         hostname: dummy_host,
-                         port:     dummy_port,
-                         username: dummy_username,
-                         password: dummy_pass,
-                         vhost:    dummy_vhost
-                       ) do
+      expect(Bunny).to receive(:new).with(hostname: config.rabbit_reporting.host,
+                                          port:     config.rabbit_reporting.port,
+                                          username: config.rabbit_reporting.username,
+                                          password: config.rabbit_reporting.pass,
+                                          vhost:    config.rabbit_reporting.vhost
+                                         ) do
         connection
       end
       subject.setup

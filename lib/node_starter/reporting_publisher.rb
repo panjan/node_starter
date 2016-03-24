@@ -5,11 +5,11 @@ module NodeStarter
   class ReportingPublisher
     def setup
       @conn = Bunny.new(
-        hostname: NodeStarter.config.amqp.host,
-        port:     NodeStarter.config.amqp.port,
-        username: NodeStarter.config.amqp.username,
-        password: NodeStarter.config.amqp.password,
-        vhost:    NodeStarter.config.amqp.vhost)
+        hostname: NodeStarter.config.rabbit_reporting.host,
+        port:     NodeStarter.config.rabbit_reporting.port,
+        username: NodeStarter.config.rabbit_reporting.username,
+        password: NodeStarter.config.rabbit_reporting.password,
+        vhost:    NodeStarter.config.rabbit_reporting.vhost)
 
       @conn.start
 
@@ -20,7 +20,7 @@ module NodeStarter
         auto_delete: false
       }
 
-      @exchange = @channel.topic(NodeStarter.config.amqp.build_reporting_exchange, exchange_params)
+      @exchange = @channel.topic(NodeStarter.config.rabbit_reporting.build_reporting_exchange, exchange_params)
     end
 
     def receive(id)
