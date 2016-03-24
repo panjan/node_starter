@@ -31,6 +31,13 @@ describe 'NodeStarter::Subscribe integration' do
 
   before(:each) do
     FileUtils.mkdir(tmp_dir)
+    allow(NodeStarter::ReportingPublisher).to receive(:new) do
+      double(
+        'reporting double',
+        setup: {},
+        receive: {},
+        start: {})
+    end
   end
 
   after(:each) do

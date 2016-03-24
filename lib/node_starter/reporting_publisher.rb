@@ -1,6 +1,7 @@
 require 'bunny'
 
 module NodeStarter
+  # class for reporting build state
   class ReportingPublisher
     def setup
       @conn = Bunny.new(
@@ -22,12 +23,18 @@ module NodeStarter
       @exchange = @channel.topic(NodeStarter.config.amqp.build_reporting_exchange, exchange_params)
     end
 
-    def receive
-      @exchange.publish(NodeStarter.config.amqp.build_receive_message_type || 'build:receive')
+    def receive(id)
+      @exchange.publish(
+        { id: id }.to_json,
+        type: NodeStarter.config.amqp.build_receive_message_type || 'build:receive'
+      )
     end
 
-    def start
-      @exchange.publish(NodeStarter.config.amqp.build_start_message_type || 'build:start')
+    def start(id)
+      @exchange.publish(
+        { id: id }.to_json,
+        type: NodeStarter.config.amqp.build_start_message_type || 'build:start'
+      )
     end
   end
 end

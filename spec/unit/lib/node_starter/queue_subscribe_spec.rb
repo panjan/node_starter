@@ -13,12 +13,20 @@ describe NodeStarter::QueueSubscribe do
     double('shutdown_consumer',
            setup: {},
            subscribe: {},
-           close_connection: {})
+           close_connection: {},
+           reject: {})
+  end
+  let(:reporting_publisher) do
+    double('reporting_publisher',
+           setup: {},
+           receive: {},
+           start: {})
   end
 
   before do
     allow(NodeStarter::Consumer).to receive(:new) { consumer }
     allow(NodeStarter::ShutdownConsumer).to receive(:new) { shutdown_consumer }
+    allow(NodeStarter::ReportingPublisher).to receive(:new) { reporting_publisher }
   end
 
   describe '#initialize' do
