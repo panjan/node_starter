@@ -43,26 +43,22 @@ module NodeStarter
     end
 
     def run(delivery_info, payload)
-      params = nil
-      begin
-        params = JSON.parse(delivery_info, payload)
+      params = JSON.parse(delivery_info, payload)
+      NodeStarter.logger.info("Received START with build_id: #{params['build_id']}")
 
-        NodeStarter.logger.info("Received START with build_id: #{params['build_id']}")
+      starter = NodeStarter::Starter.new(
+        params['build_id'], params['config'], params['enqueue_data'], params['node_api_uri'])
 
-        starter = NodeStarter::Starter.new(
-          params['build_id'], params['config'], params['enqueue_data'], params['node_api_uri'])
-
-        @reporting_publisher.receive(params['build_id'])
-        starter.start_node_process
-        @consumer.ack(delivery_info)
-        @shutdown_consumer.register_node(params['build_id'])
-        @reporting_publisher.start(params['build_id'])
-        wait_for_node(starter, params['build_id'])
-      rescue => e
-        NodeStarter.logger.error "Node #{params['build_id']} spawn failed: #{e}"
-
-        @consumer.reject(delivery_info, true)
-      end
+      @reporting_publisher.receive(params['build_id'])
+      starter.start_node_process
+      @consumer.ack(delivery_info)
+      @shutdown_consumer.register_node(params['build_id'])
+      @reporting_publisher.start(params['build_id'])
+      wait_for_node(starter, params['build_id'])
+    rescue => e
+      build_id = params ? params['build_id'] : 'unknown'
+      NodeStarter.logger.error "Failed to spawn node with build_id #{build_id}: #{e}"
+      @consumer.reject(delivery_info, true)
     end
 
     def wait_for_node(starter, build_id)
